@@ -1,27 +1,26 @@
-import express from "express";
-import cors from "cors";
-import { AccessToken } from "livekit-server-sdk";
-import dotenv from "dotenv";
+import express from 'express';
+import { AccessToken } from 'livekit-server-sdk';
+import dotenv from 'dotenv';
 
 dotenv.config();
-
 const app = express();
-app.use(cors());
 app.use(express.json());
 
-app.post("/get-token", async (req, res) => {
+const apiKey = process.env.LIVEKIT_API_KEY;
+const apiSecret = process.env.LIVEKIT_API_SECRET;
+const livekitHost = 'wss://medallovip-zxlixdwt.livekit.cloud';
+
+app.post('/get-token', (req, res) => {
   const { roomName, identity } = req.body;
-  if (!roomName || !identity) return res.status(400).json({ error: "Faltan datos" });
 
-  const token = new AccessToken(process.env.LIVEKIT_API_KEY, process.env.LIVEKIT_API_SECRET, {
+  const at = new AccessToken(apiKey, apiSecret, {
     identity,
-    ttl: 3600,
   });
-  token.addGrant({ roomJoin: true, room: roomName });
+  at.addGrant({ roomJoin: true, room: roomName });
 
-  res.json({ token: token.toJwt() });
+  res.json({ token: at.toJwt() });
 });
 
-app.listen(3001, () => {
-  console.log("Servidor backend escuchando en http://localhost:3001");
+app.listen(3000, () => {
+  console.log('Servidor backend funcionando en puerto 3000');
 });
